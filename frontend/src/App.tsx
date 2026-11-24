@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import OfficialDetail from './OfficialDetail'
 import ExecutivePage from './ExecutivePage'
+import { safeUrl } from './utils'
 import './App.css'
 
 interface Official {
@@ -47,7 +48,15 @@ function App() {
       if (!res.ok) {
         setError(data.detail || 'Something went wrong')
       } else {
-        setResult(data)
+        setResult({
+          ...data,
+          officials: data.officials.map((o: Official) => ({
+            ...o,
+            photoUrl: safeUrl(o.photoUrl),
+            officialWebsite: safeUrl(o.officialWebsite),
+            contactUrl: safeUrl(o.contactUrl),
+          })),
+        })
       }
     } catch {
       setError('Could not reach the server. Is the backend running?')

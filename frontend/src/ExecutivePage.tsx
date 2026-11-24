@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { safeUrl } from './utils'
 
 interface ExecutiveOfficial {
   role: string
@@ -19,7 +20,14 @@ export default function ExecutivePage() {
       .then(async (res) => {
         const data = await res.json()
         if (!res.ok) throw new Error(data.detail || 'Failed to load')
-        setOfficials(data.officials)
+        setOfficials(
+          data.officials.map((o: ExecutiveOfficial) => ({
+            ...o,
+            photoUrl: safeUrl(o.photoUrl),
+            officialWebsite: safeUrl(o.officialWebsite),
+            wikipediaUrl: safeUrl(o.wikipediaUrl),
+          }))
+        )
       })
       .catch((e) => setError(e.message))
   }, [])

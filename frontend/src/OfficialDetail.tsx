@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { safeUrl } from './utils'
 
 interface Term {
   chamber: string
@@ -83,7 +84,21 @@ export default function OfficialDetail({
       .then(async (res) => {
         const data = await res.json()
         if (!res.ok) throw new Error(data.detail || 'Failed to load official')
-        setOfficial(data)
+        setOfficial({
+          ...data,
+          photoUrl: safeUrl(data.photoUrl),
+          officialWebsite: safeUrl(data.officialWebsite),
+          contactUrl: safeUrl(data.contactUrl),
+          sources: {
+            congress: safeUrl(data.sources?.congress),
+            wikipedia: safeUrl(data.sources?.wikipedia),
+          },
+          recentVotes: (data.recentVotes ?? []).map((v: Vote) => ({
+            ...v,
+            billUrl: safeUrl(v.billUrl),
+            rollCallUrl: safeUrl(v.rollCallUrl),
+          })),
+        })
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
